@@ -11,4 +11,6 @@ public interface MyBeanFactory {
      * @throws Exception
      */
     Object getBean(String beanName) throws Exception;
+
+    Object getBean(Class<?> beanClass) throws Exception;
 }

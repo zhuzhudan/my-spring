@@ -10,6 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * IOC容器实例化的默认实现，可以扩展，但不能没有
  */
 public class MyDefaultListableBeanFactory extends MyAbstractApplicationContext {
-    //IOC容器，存储注册信息的BeanDefinition
+    //IOC容器，存储注册信息的BeanDefinition，伪IOC容器
     protected final Map<String, MyBeanDefinition> beanDefinitionMap = new ConcurrentHashMap<String, MyBeanDefinition>();
 }

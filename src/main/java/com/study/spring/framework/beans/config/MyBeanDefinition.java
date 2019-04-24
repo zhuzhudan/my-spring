@@ -9,6 +9,8 @@ public class MyBeanDefinition {
     private boolean lazyInit = false;
     private String factoryBeanName;
 
+    private boolean isSingleton = true;
+
     // 由Spring创建、管理bean，需要先提供类名
     public void setBeanClassName(String beanClassName) {
         this.beanClassName = beanClassName;

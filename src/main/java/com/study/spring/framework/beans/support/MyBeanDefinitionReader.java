@@ -86,7 +86,9 @@ public class MyBeanDefinitionReader {
                 if (null == beanDefinition) {
                     continue;
                 }
+                // 既可以根据类名来取，又可以根据自定义的名字来取
                 result.add(beanDefinition);
+                result.add(doCreateBeanDefinition(beanClass.getName(),beanClass.getName()));
 
                 Class<?>[] interfaces = beanClass.getInterfaces();
                 for (Class<?> i : interfaces){
