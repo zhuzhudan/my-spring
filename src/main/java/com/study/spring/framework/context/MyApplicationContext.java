@@ -6,6 +6,7 @@ import com.study.spring.framework.annotation.MyService;
 import com.study.spring.framework.beans.MyBeanFactory;
 import com.study.spring.framework.beans.MyBeanWrapper;
 import com.study.spring.framework.beans.config.MyBeanDefinition;
+import com.study.spring.framework.beans.config.MyBeanPostProcessor;
 import com.study.spring.framework.beans.support.MyBeanDefinitionReader;
 import com.study.spring.framework.beans.support.MyDefaultListableBeanFactory;
 
@@ -14,6 +15,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MyApplicationContext extends MyDefaultListableBeanFactory implements MyBeanFactory {
@@ -88,10 +90,19 @@ public class MyApplicationContext extends MyDefaultListableBeanFactory implement
         //分成初始化、注入，是防止循环依赖
         // 1、初始化
         MyBeanDefinition beanDefinition = this.beanDefinitionMap.get(beanName);
-        MyBeanWrapper beanWrapper = instantiateBean(beanName, beanDefinition);
+        Object instance = null;
+
+        MyBeanPostProcessor postProcessor = new MyBeanPostProcessor();
+        postProcessor.postProcessBeforeInitialization(instance, beanName);
+
+        instance = instantiateBean(beanName, beanDefinition);
+        // instantiateBean中的3、将对象封装到BeanWrapper中
+        MyBeanWrapper beanWrapper = new MyBeanWrapper(instance);
 
         // 2、拿到BeanWrapper之后，把BeanWrapper保存到IOC容器中
         this.beanWrapperMap.put(beanName, beanWrapper);
+
+        postProcessor.postProcessAfterInitialzation(instance, beanName);
 
         // 3、注入，DI操作
         populateBean(beanName, new MyBeanDefinition(), beanWrapper);
@@ -143,7 +154,7 @@ public class MyApplicationContext extends MyDefaultListableBeanFactory implement
 
     // 负责读取BeanDefinition的配置，将配置的信息转化成实体对象，存到真正的IOC容器
     // IOC容器的Key就是beanName，Value就是beanDefinition存储的Class的实例
-    private MyBeanWrapper instantiateBean(String beanName, MyBeanDefinition beanDefinition) {
+    private Object instantiateBean(String beanName, MyBeanDefinition beanDefinition) {
         // 1、拿到要实例化的对象的类名
         String className = beanDefinition.getBeanClassName();
 
@@ -162,10 +173,24 @@ public class MyApplicationContext extends MyDefaultListableBeanFactory implement
             e.printStackTrace();
         }
 
-        // 3、将对象封装到BeanWrapper中
-        MyBeanWrapper beanWrapper = new MyBeanWrapper(instance);
+//        // 3、将对象封装到BeanWrapper中
+//        MyBeanWrapper beanWrapper = new MyBeanWrapper(instance);
+//
+//        // 4、把BeanWrapper存到IOC容器里面
+        return instance;
+    }
 
-        // 4、把BeanWrapper存到IOC容器里面
-        return beanWrapper;
+    //--------------------------------------MVC 开始---------------------------------------
+    public String[] getBeanDefinitionNames(){
+        //伪IOC容器，存储注册信息的BeanDefinition
+        return this.beanDefinitionMap.keySet().toArray(new String[this.beanDefinitionMap.size()]);
+    }
+
+    public int getBeanDefinitionCount(){
+        return this.beanDefinitionMap.size();
+    }
+
+    public Properties getConfig(){
+        return this.reader.getConfig();
     }
 }

@@ -6,18 +6,18 @@
 
   <display-name>Archetype Created Web Application</display-name>
 
-  <!--<servlet>-->
-    <!--<servlet-name>mvc-dispatcher</servlet-name>-->
-    <!--<servlet-class>com.study.spring.framework.webmvc.servlet.GPDispatcherServlet</servlet-class>-->
-    <!--<init-param>-->
-      <!--<param-name>contextConfigLocation</param-name>-->
-      <!--<param-value>classpath:application.properties</param-value>-->
-    <!--</init-param>-->
-    <!--<load-on-startup>1</load-on-startup>-->
-  <!--</servlet>-->
+  <servlet>
+    <servlet-name>mvc-dispatcher</servlet-name>
+    <servlet-class>com.study.spring.framework.webmvc.servlet.MyDispatcherServlet</servlet-class>
+    <init-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>classpath:application.properties</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
 
-  <!--<servlet-mapping>-->
-    <!--<servlet-name>mvc-dispatcher</servlet-name>-->
-    <!--<url-pattern>/</url-pattern>-->
-  <!--</servlet-mapping>-->
+  <servlet-mapping>
+    <servlet-name>mvc-dispatcher</servlet-name>
+    <url-pattern>/*</url-pattern>
+  </servlet-mapping>
 </web-app>

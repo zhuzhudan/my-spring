@@ -9,4 +9,19 @@ public class DemoService implements IDemoService {
     public String get(String name) {
         return "Hello, " + name;
     }
+
+    @Override
+    public String add(String name, String addr) throws Exception {
+        throw new Exception("这是故意抛的异常");
+    }
+
+    @Override
+    public String edit(Integer id, String name) {
+        return "demoService edit,id=" + id + ",name=" + name;
+    }
+
+    @Override
+    public String remove(Integer id) {
+        return "demoService id=" + id;
+    }
 }
