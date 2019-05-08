@@ -3,6 +3,11 @@ package com.study.spring.framework.context;
 import com.study.spring.framework.annotation.MyAutowired;
 import com.study.spring.framework.annotation.MyController;
 import com.study.spring.framework.annotation.MyService;
+import com.study.spring.framework.aop.MyAopProxy;
+import com.study.spring.framework.aop.MyCglibAopProxy;
+import com.study.spring.framework.aop.MyJdkDynamicAopProxy;
+import com.study.spring.framework.aop.config.MyAopConfig;
+import com.study.spring.framework.aop.support.MyAdvisedSupport;
 import com.study.spring.framework.beans.MyBeanFactory;
 import com.study.spring.framework.beans.MyBeanWrapper;
 import com.study.spring.framework.beans.config.MyBeanDefinition;
@@ -166,6 +171,19 @@ public class MyApplicationContext extends MyDefaultListableBeanFactory implement
             }else {
                 Class<?> clazz = Class.forName(className);
                 instance = clazz.newInstance();
+
+                // 解析配置文件
+                MyAdvisedSupport config = instantionAopConfig(beanDefinition);
+                config.setTargetClass(clazz);
+                config.setTarget(instance);
+
+                // 查看当前类是否在切面规则之内
+                // 符合PointCut的规则的话，将创建代理对象
+                if(config.pointCutMatch()){
+                    // 创建代理策略，看是用CGLib还是JDK
+                    instance = createProxy(config).getProxy();
+                }
+
                 this.singletonBeanCacheMap.put(className, instance);
                 this.singletonBeanCacheMap.put(beanDefinition.getFactoryBeanName(), instance);
             }
@@ -193,4 +211,27 @@ public class MyApplicationContext extends MyDefaultListableBeanFactory implement
     public Properties getConfig(){
         return this.reader.getConfig();
     }
+
+    //--------------------------------------AOP 开始---------------------------------------
+
+    private MyAdvisedSupport instantionAopConfig(MyBeanDefinition beanDefinition) {
+        MyAopConfig config = new MyAopConfig();
+        config.setPointCut(this.reader.getConfig().getProperty("pointCut"));
+        config.setAspectBefore(this.reader.getConfig().getProperty("aspectBefore"));
+        config.setAspectAfter(this.reader.getConfig().getProperty("aspectAfter"));
+        config.setAspectClass(this.reader.getConfig().getProperty("aspectClass"));
+        config.setAspectAfterThrow(this.reader.getConfig().getProperty("aspectAfterThrow"));
+        config.setAspectAfterThrowingName(this.reader.getConfig().getProperty("aspectAfterThrowingName"));
+//        config.setAspectAround(this.reader.getConfig().getProperty("aspectAround"));
+        return new MyAdvisedSupport(config);
+    }
+
+    private MyAopProxy createProxy(MyAdvisedSupport config) {
+        Class targetClass = config.getTargetClass();
+        if(targetClass.getInterfaces().length> 0){
+            return new MyJdkDynamicAopProxy(config);
+        }
+        return new MyCglibAopProxy(config);
+    }
+
 }
